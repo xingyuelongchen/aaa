@@ -12,7 +12,8 @@ body {
   padding: 20px;
   display: flex;
   justify-content: center;
-  flex-direction: column;
+  align-items: center;
+  height: 50vh;
 
   .van-form {
     padding: 20px;
@@ -54,6 +55,10 @@ body {
       &.active {
         background: rgb(4, 22, 104);
         color: #fff;
+      }
+
+      &.hover {
+        box-shadow: 0 0 10px rgba(0, 0, 0, .2);
       }
 
       span {

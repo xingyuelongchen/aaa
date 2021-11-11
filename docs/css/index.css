@@ -11,7 +11,8 @@ body {
   padding: 20px;
   display: flex;
   justify-content: center;
-  flex-direction: column;
+  align-items: center;
+  height: 50vh;
 }
 #login .van-form {
   padding: 20px;
@@ -47,6 +48,9 @@ body {
 #main .content .item.active {
   background: #041668;
   color: #fff;
+}
+#main .content .item.hover {
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
 }
 #main .content .item span {
   position: absolute;

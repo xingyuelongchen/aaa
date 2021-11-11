@@ -14,45 +14,104 @@
   <script src="./js/vue@2.6.4.js"></script>
   <!-- <script src="./js/dpr.js"></script> -->
   <script src="./js/vant.js"></script>
+  <script src="./js/axios.js"></script>
 </head>
 
 <body>
   <div id="main">
-    <van-notice-bar safe-area-inset-top left-icon="volume-o" text="在代码阅读过程中人们说脏话的频率是衡量代码质量的唯一标准。"></van-notice-bar>
+    <div safe-area-inset-top>
+      <van-notice-bar left-icon="volume-o" v-if="text" :text="text"></van-notice-bar>
+    </div>
     <div class="content">
-      <div class="item" v-for="item in list" @click="handle(item)" :class="{active:item.handle}">
-        <span> {{item.label}}</span>
+      <div class="item" v-for="item in list" :key="item.mobile" @click="handle(item)" :class="{active:item.handle}">
+        <span> {{item.mobile}} </span>
       </div>
     </div>
     <div class="control" safe-area-inset-bottom>
-      <div class="msg">已使用<span>{{source}}</span>分</div>
+      <div class="msg">已使用<span>{{total}}</span>次</div>
       <div class="btn">
-        <van-button icon="plus" type="primary">加</van-button>
-        <van-button icon="replay" type="info">刷</van-button>
-        <van-button icon="minus" type="primary">减</van-button>
+        <van-button round icon="plus" type="primary" @click="add">加</van-button>
+        <van-button round icon="replay" type="info" @click="getList">刷</van-button>
+        <van-button round icon="minus" type="primary" @click="del">减</van-button>
       </div>
     </div>
   </div>
   <script>
+    const Userinfo = localStorage.getItem("userinfo");
+    if (!Userinfo) {
+      vant.Toast.fail('登录失效，请重新登录！');
+      setTimeout(() => {
+        // location.href = "./index.html"
+      }, 2000)
+    }
     const option = {
       el: "#main",
       data: {
-        source: 29,
+        text: "",
+        total: 0,
+        userinfo: JSON.parse(Userinfo) || {},
         list: [
-          { label: '牛皮', handle: false },
-          { label: '迈克', handle: false },
-          { label: '托尼', handle: false },
-          { label: '三夫', handle: false },
-          { label: '杰克', handle: true },
-          { label: '凯哥', handle: false },
-          { label: '琳达', handle: false },
-          { label: '赛瑞', handle: false },
-          { label: '黄金', handle: false },
-          { label: '吉米', handle: true }
-        ]
+          { glid: null, mobile: '牛皮', handle: false },
+          { glid: null, mobile: '迈克', handle: false },
+          { glid: null, mobile: '托尼', handle: false },
+          { glid: null, mobile: '三夫', handle: false },
+          { glid: null, mobile: '杰克', handle: false },
+          { glid: null, mobile: '凯哥', handle: false },
+          { glid: null, mobile: '琳达', handle: false },
+          { glid: null, mobile: '赛瑞', handle: false },
+          { glid: null, mobile: '黄金', handle: false },
+          { glid: null, mobile: '吉米', handle: true }
+        ],
+
+      },
+      created() {
+        this.getTotal();
+        this.getList();
       },
       methods: {
-        handle(item) { console.log(item) }
+        handle(item) {
+          if (item.handle) {
+            this.userinfo.mobile = item.mobile;
+            this.userinfo.glid = item.glid;
+          }
+        },
+        async getTotal() {
+          let { user_id: userid } = this.userinfo;
+          let { data } = await axios({
+            url: '/getnums',
+            params: { userid }
+          });
+          this.total = data.nums || 0
+        },
+        async getList() {
+          let { token, user_id: userid, } = this.userinfo;
+          let { data } = await axios({
+            url: '/getgdlist',
+            params: { token, userid }
+          });
+          let list = data.data;
+          this.list = this.list.map(e => {
+            let item = list.find(k => e.mobile === k.mobile)
+            if (item) return { ...e, ...item, handle: true }
+            else return e;
+          })
+        },
+        async add() {
+          let { token, user_id: userid, mobile: origin_user_id } = this.userinfo;
+          let { data } = await axios({
+            url: '/dobuyin',
+            params: { token, userid, origin_user_id }
+          });
+          this.getTotal();
+        },
+        async del() {
+          let { glid, token, user_id: userid } = this.userinfo;
+          let { data } = await axios({
+            url: '/dobuyout',
+            params: { glid, token, userid }
+          });
+          this.getTotal();
+        }
       },
     }
     window.VM = new Vue(option)

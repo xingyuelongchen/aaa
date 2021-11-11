@@ -11,18 +11,18 @@
   <link rel="stylesheet" href="./css/vant.css">
   <link rel="stylesheet" href="./css/index.css">
   <script src="./js/vue@2.6.4.js"></script>
-  <!-- <script src="./js/dpr.js"></script> -->
   <script src="./js/vant.js"></script>
+  <script src="./js/axios.js"></script>
 </head>
 
 <body>
   <div id="login">
     <van-form>
-      <van-field v-model="formData.username" name="用户账号" label="用户账号" placeholder="用户账号"
+      <van-field v-model="formData.name" name="用户账号" label="用户账号" placeholder="用户账号"
         :rules="[{ required: true, message: '请填写用户名' }]"></van-field>
-      <van-field v-model="formData.password" type="password" name="登录密码" label="登录密码" placeholder="登录密码"
+      <van-field v-model="formData.psw" type="password" name="登录密码" label="登录密码" placeholder="登录密码"
         :rules="[{ required: true, message: '请填写登录密码' }]"></van-field>
-      <van-field v-model="formData.payPassword" type="password" name="密码" label="支付密码" placeholder="支付密码"
+      <van-field v-model="formData.paypsw" type="password" name="密码" label="支付密码" placeholder="支付密码"
         :rules="[{ required: true, message: '请填写支付密码' }]"></van-field>
       <div style="margin: 16px;">
         <van-button round block type="info" @click="onSubmit">提交</van-button>
@@ -34,10 +34,27 @@
     const option = {
       el: "#login",
       data: {
-        formData: {},
+        formData: { name: 243411, psw: 123456, paypsw: 121111 },
       },
       methods: {
-        onSubmit() { console.log(this.formData) }
+        async onSubmit() {
+          try {
+            let { data } = await axios({
+              url: '/dologin',
+              params: this.formData
+            });
+            let res = data;
+            if (res.msg == '登录成功') {
+              vant.Toast.success(res.msg);
+              window.localStorage.setItem('userinfo', JSON.stringify(res))
+              window.location.href = "./main.html";
+            } else {
+              throw '登录失败'
+            }
+          } catch (error) {
+            vant.Toast.fail('登录失败');
+          }
+        }
       },
     }
     window.VM = new Vue(option)
