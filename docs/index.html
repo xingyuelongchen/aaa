@@ -5,7 +5,7 @@
   <meta charset="utf-8">
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <link rel="icon" href="/favicon.ico">
   <title>document</title>
   <link rel="stylesheet" href="./css/vant.css">
@@ -25,26 +25,44 @@
       <van-field v-model="formData.paypsw" type="password" name="密码" label="支付密码" placeholder="支付密码"
         :rules="[{ required: true, message: '请填写支付密码' }]"></van-field>
       <div style="margin: 16px;">
-        <van-button round block type="info" @click="onSubmit">提交</van-button>
+        <van-button round block type="info" @click="onSubmit" :loading="loading" loading-text="登陆中...">登陆</van-button>
       </div>
     </van-form>
+    <!-- <div class="box">
+      <div class="item">
+        <div class="label">用户账号:</div>
+        <input class="input" v-model="formData.name" />
+      </div>
+      <div class="item">
+        <div class="label">登录密码:</div>
+        <input class="input" v-model="formData.psw" />
+      </div>
+      <div class="item">
+        <div class="label">支付密码:</div>
+        <input class="input" v-model="formData.paypsw" />
+      </div>
+      <van-button round block type="info" @click="onSubmit" :loading="loading" loading-text="登陆中...">登陆</van-button>
+    </div> -->
   </div>
 
   <script>
     const option = {
       el: "#login",
       data: {
+        loading: false,
         formData: { name: 243411, psw: 123456, paypsw: 121111 },
       },
       methods: {
         async onSubmit() {
+          if (this.loading) return;
+          this.loading = true;
           try {
             let { data } = await axios({
-              url: '/dologin',
-              params: this.formData
+              url: '/api/dologin',
+              data: this.formData
             });
             let res = data;
-            if (res.msg == '登录成功') {
+            if (res.msg == '登陆成功') {
               vant.Toast.success(res.msg);
               window.localStorage.setItem('userinfo', JSON.stringify(res))
               window.location.href = "./main.html";
@@ -54,6 +72,7 @@
           } catch (error) {
             vant.Toast.fail('登录失败');
           }
+          this.loading = false;
         }
       },
     }

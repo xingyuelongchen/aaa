@@ -5,48 +5,51 @@
   <meta charset="utf-8">
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-  <meta name="viewport"
-    content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no,viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <link rel="icon" href="/favicon.ico">
   <title>document</title>
   <link rel="stylesheet" href="./css/vant.css">
   <link rel="stylesheet" href="./css/index.css">
   <script src="./js/vue@2.6.4.js"></script>
-  <!-- <script src="./js/dpr.js"></script> -->
   <script src="./js/vant.js"></script>
   <script src="./js/axios.js"></script>
 </head>
 
 <body>
-  <div id="main">
+  <div id="main" class="wrap">
     <div safe-area-inset-top>
       <van-notice-bar left-icon="volume-o" v-if="text" :text="text"></van-notice-bar>
     </div>
     <div class="content">
-      <div class="item" v-for="item in list" :key="item.mobile" @click="handle(item)" :class="{active:item.handle}">
-        <span> {{item.mobile}} </span>
-      </div>
-    </div>
-    <div class="control" safe-area-inset-bottom>
-      <div class="msg">已使用<span>{{total}}</span>次</div>
       <div class="btn">
-        <van-button round icon="plus" type="primary" @click="add">加</van-button>
-        <van-button round icon="replay" type="info" @click="getList">刷</van-button>
-        <van-button round icon="minus" type="primary" @click="del">减</van-button>
+        <van-button :disabled="loading" round icon="plus" :type="btn!=1?'primary':'danger'" @click="add">加</van-button>
+        <van-button :disabled="loading" round icon="replay" :type="btn!=2?'info':'danger'" @click="reset">刷
+        </van-button>
+        <van-button :disabled="loading" round icon="minus" :type="btn!=0?'primary':'danger'" @click="del">减</van-button>
+      </div>
+      <div class="list">
+        <div class="item" v-for="item in list" :key="item.mobile" @click="handle(item)"
+          :class="{active:item.handle,hover:item.mobile === userinfo.mobile}">
+          <span>{{item.mobile}} </span>
+        </div>
       </div>
     </div>
+    <div class="msg" safe-area-inset-bottom>已使用<span>{{total}}</span>次</div>
+
   </div>
   <script>
     const Userinfo = localStorage.getItem("userinfo");
     if (!Userinfo) {
       vant.Toast.fail('登录失效，请重新登录！');
       setTimeout(() => {
-        // location.href = "./index.html"
+        location.href = "./index.html"
       }, 2000)
     }
     const option = {
       el: "#main",
       data: {
+        loading: false,
+        btn: '',
         text: "",
         total: 0,
         userinfo: JSON.parse(Userinfo) || {},
@@ -60,7 +63,7 @@
           { glid: null, mobile: '琳达', handle: false },
           { glid: null, mobile: '赛瑞', handle: false },
           { glid: null, mobile: '黄金', handle: false },
-          { glid: null, mobile: '吉米', handle: true }
+          { glid: null, mobile: '吉米', handle: false }
         ],
 
       },
@@ -73,44 +76,65 @@
           if (item.handle) {
             this.userinfo.mobile = item.mobile;
             this.userinfo.glid = item.glid;
+            this.userinfo.select = true;
           }
         },
         async getTotal() {
           let { user_id: userid } = this.userinfo;
           let { data } = await axios({
-            url: '/getnums',
-            params: { userid }
+            url: '/api/getnums',
+            data: { userid }
           });
           this.total = data.nums || 0
         },
         async getList() {
-          let { token, user_id: userid, } = this.userinfo;
-          let { data } = await axios({
-            url: '/getgdlist',
-            params: { token, userid }
-          });
-          let list = data.data;
-          this.list = this.list.map(e => {
-            let item = list.find(k => e.mobile === k.mobile)
-            if (item) return { ...e, ...item, handle: true }
-            else return e;
-          })
+          try {
+            let { token, user_id: userid, } = this.userinfo;
+            let { data } = await axios({
+              url: '/api/getgdlist',
+              data: { token, userid }
+            });
+            let list = data.data;
+            this.list = this.list.map(e => {
+              let item = list.find(k => e.mobile === k.mobile)
+              if (item) return { ...e, ...item, handle: true }
+              else return e;
+            })
+          } catch (error) { }
+          this.loading = false;
+        },
+        reset() {
+          this.loading = true;
+          this.btn = 2;
+          this.getList();
         },
         async add() {
-          let { token, user_id: userid, mobile: origin_user_id } = this.userinfo;
-          let { data } = await axios({
-            url: '/dobuyin',
-            params: { token, userid, origin_user_id }
-          });
-          this.getTotal();
+          this.loading = true;
+          this.btn = 1;
+          try {
+            let { token, user_id: userid, mobile: origin_user_id, select } = this.userinfo;
+            if (!select) { vant.Toast.fail('请选择！'); throw ''; }
+            let { data } = await axios({
+              url: '/api/dobuyin',
+              data: { token, userid, origin_user_id }
+            });
+            this.getTotal();
+          } catch (error) { }
+          this.loading = false;
         },
         async del() {
-          let { glid, token, user_id: userid } = this.userinfo;
-          let { data } = await axios({
-            url: '/dobuyout',
-            params: { glid, token, userid }
-          });
-          this.getTotal();
+          this.loading = true;
+          this.btn = 0;
+          try {
+            let { glid, token, user_id: userid, select } = this.userinfo;
+            if (!select) { vant.Toast.fail('请选择！'); throw ''; }
+            let { data } = await axios({
+              url: '/api/dobuyout',
+              data: { glid, token, userid }
+            });
+            this.getTotal();
+          } catch (error) { }
+          this.loading = false;
         }
       },
     }
