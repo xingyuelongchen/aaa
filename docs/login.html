@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <link rel="icon" href="/favicon.ico">
+  <title>document</title>
+  <link rel="stylesheet" href="./css/vant.css">
+  <link rel="stylesheet" href="./css/index.css">
+  <script src="./js/vue@2.6.4.js"></script>
+  <!-- <script src="./js/dpr.js"></script> -->
+  <script src="./js/vant.js"></script>
+</head>
+
+<body>
+  <div id="login">
+    <van-form>
+      <van-field v-model="formData.username" name="用户账号" label="用户账号" placeholder="用户账号"
+        :rules="[{ required: true, message: '请填写用户名' }]"></van-field>
+      <van-field v-model="formData.password" type="password" name="登录密码" label="登录密码" placeholder="登录密码"
+        :rules="[{ required: true, message: '请填写登录密码' }]"></van-field>
+      <van-field v-model="formData.payPassword" type="password" name="密码" label="支付密码" placeholder="支付密码"
+        :rules="[{ required: true, message: '请填写支付密码' }]"></van-field>
+      <div style="margin: 16px;">
+        <van-button round block type="info" @click="onSubmit">提交</van-button>
+      </div>
+    </van-form>
+  </div>
+
+  <script>
+    const option = {
+      el: "#login",
+      data: {
+        formData: {},
+      },
+      methods: {
+        onSubmit() { console.log(this.formData) }
+      },
+    }
+    window.VM = new Vue(option)
+  </script>
+</body>
+
+</html>

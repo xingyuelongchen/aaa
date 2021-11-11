@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no,viewport-fit=cover">
+  <link rel="icon" href="/favicon.ico">
+  <title>document</title>
+  <link rel="stylesheet" href="./css/vant.css">
+  <link rel="stylesheet" href="./css/index.css">
+  <script src="./js/vue@2.6.4.js"></script>
+  <!-- <script src="./js/dpr.js"></script> -->
+  <script src="./js/vant.js"></script>
+</head>
+
+<body>
+  <div id="main">
+    <van-notice-bar safe-area-inset-top left-icon="volume-o" text="在代码阅读过程中人们说脏话的频率是衡量代码质量的唯一标准。"></van-notice-bar>
+    <div class="content">
+      <div class="item" v-for="item in list" @click="handle(item)" :class="{active:item.handle}">
+        <span> {{item.label}}</span>
+      </div>
+    </div>
+    <div class="control" safe-area-inset-bottom>
+      <div class="msg">已使用<span>{{source}}</span>分</div>
+      <div class="btn">
+        <van-button icon="plus" type="primary">加</van-button>
+        <van-button icon="replay" type="info">刷</van-button>
+        <van-button icon="minus" type="primary">减</van-button>
+      </div>
+    </div>
+  </div>
+  <script>
+    const option = {
+      el: "#main",
+      data: {
+        source: 29,
+        list: [
+          { label: '牛皮', handle: false },
+          { label: '迈克', handle: false },
+          { label: '托尼', handle: false },
+          { label: '三夫', handle: false },
+          { label: '杰克', handle: true },
+          { label: '凯哥', handle: false },
+          { label: '琳达', handle: false },
+          { label: '赛瑞', handle: false },
+          { label: '黄金', handle: false },
+          { label: '吉米', handle: true }
+        ]
+      },
+      methods: {
+        handle(item) { console.log(item) }
+      },
+    }
+    window.VM = new Vue(option)
+  </script>
+</body>
+
+</html>

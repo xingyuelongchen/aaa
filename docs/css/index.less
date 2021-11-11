@@ -1,0 +1,99 @@
+html,
+body {
+  margin: 0;
+  padding: 0;
+  font-size: 0.14rem;
+  color: #444;
+  max-width: 750px;
+}
+
+#login {
+  margin: 0 auto;
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+
+  .van-form {
+    padding: 20px;
+    border-radius: 7px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, .2);
+  }
+}
+
+#main {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: stretch;
+  height: 100vh;
+
+  .content {
+    height: calc(100vh - 120px - 40px);
+    overflow-y: auto;
+    text-align: center;
+    // display: flex;
+    // justify-content: flex-start;
+    // align-items: flex-start;
+
+    .item {
+      // display: inline-block;
+      float: left;
+      width: 20%;
+      padding-bottom: 20%;
+      height: 0;
+      position: relative;
+      border-radius: 50%;
+      overflow: hidden;
+      margin: 5%;
+      color: #000;
+      background: rgba(40, 48, 211);
+      font-size: 24px;
+
+      &.active {
+        background: rgb(4, 22, 104);
+        color: #fff;
+      }
+
+      span {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        margin: auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+    }
+  }
+
+  .control {
+    height: 120px;
+
+    .msg {
+      font-size: 24px;
+      text-align: center;
+
+      span {
+        font-size: 36px;
+        color: #ff3300;
+        margin: 0 20px;
+      }
+    }
+
+    .btn {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 80px;
+
+      .van-button {
+        margin: 0 20px;
+      }
+    }
+  }
+}
