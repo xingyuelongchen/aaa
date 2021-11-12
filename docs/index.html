@@ -19,7 +19,7 @@
   <div id="login">
     <van-form>
       <van-field v-model="formData.name" name="用户账号" label="用户账号" placeholder="用户账号"
-        :rules="[{ required: true, message: '请填写用户名' }]"></van-field>
+        :rules="[{ required: true, message: '请填写用户账号' }]"></van-field>
       <van-field v-model="formData.psw" type="password" name="登录密码" label="登录密码" placeholder="登录密码"
         :rules="[{ required: true, message: '请填写登录密码' }]"></van-field>
       <van-field v-model="formData.paypsw" type="password" name="密码" label="支付密码" placeholder="支付密码"
@@ -61,7 +61,7 @@
         }
       },
     }
-    window.VM = new Vue(option)
+    window.VM = new Vue(option);
   </script>
 </body>
 

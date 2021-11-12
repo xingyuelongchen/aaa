@@ -22,14 +22,17 @@
     </div>
     <div class="content">
       <div class="btn">
-        <van-button :disabled="loading" round icon="plus" :type="btn!=1?'primary':'danger'" @click="add">加</van-button>
-        <van-button :disabled="loading" round icon="replay" :type="btn!=2?'info':'danger'" @click="reset">刷
+        <van-button :disabled="loading" round :color="btn===1?'#ee0a24':'rgb(40, 48, 211)'" icon="plus" @click="add">加
         </van-button>
-        <van-button :disabled="loading" round icon="minus" :type="btn!=0?'primary':'danger'" @click="del">减</van-button>
+        <van-button :disabled="loading" round :color="btn===2?'#ee0a24':'rgb(40, 48, 211)'" icon="replay"
+          @click="reset"> 刷 </van-button>
+        <van-button :disabled="loading||!userinfo.glid" round :color="btn===0?'#ee0a24':'rgb(40, 48, 211)'" icon="minus"
+          @click="del">减
+        </van-button>
       </div>
       <div class="list">
-        <div class="item" v-for="item in list" :key="item.mobile" @click="handle(item)"
-          :class="{active:item.handle,hover:item.mobile === userinfo.mobile}">
+        <div class="item" v-for="item in list" :key="item.mobile+item.key" @click="handle(item)"
+          :class="{active:item.glid,hover:item.hover}">
           <span>{{item.mobile}} </span>
         </div>
       </div>
@@ -54,16 +57,16 @@
         total: 0,
         userinfo: JSON.parse(Userinfo) || {},
         list: [
-          { glid: null, mobile: '牛皮', handle: false },
-          { glid: null, mobile: '迈克', handle: false },
-          { glid: null, mobile: '托尼', handle: false },
-          { glid: null, mobile: '三夫', handle: false },
-          { glid: null, mobile: '杰克', handle: false },
-          { glid: null, mobile: '凯哥', handle: false },
-          { glid: null, mobile: '琳达', handle: false },
-          { glid: null, mobile: '赛瑞', handle: false },
-          { glid: null, mobile: '黄金', handle: false },
-          { glid: null, mobile: '吉米', handle: false }
+          { glid: null, mobile: '牛皮' },
+          { glid: null, mobile: '迈克' },
+          { glid: null, mobile: '托尼' },
+          { glid: null, mobile: '三夫' },
+          { glid: null, mobile: '杰克' },
+          { glid: null, mobile: '凯哥' },
+          { glid: null, mobile: '琳达' },
+          { glid: null, mobile: '赛瑞' },
+          { glid: null, mobile: '黄金' },
+          { glid: null, mobile: '吉米' }
         ],
 
       },
@@ -73,11 +76,14 @@
       },
       methods: {
         handle(item) {
-          if (item.handle) {
-            this.userinfo.mobile = item.mobile;
-            this.userinfo.glid = item.glid;
-            this.userinfo.select = true;
-          }
+          this.list = this.list.map(e => {
+            e.hover = false;
+            if (e.mobile === item.mobile) e.hover = true;
+            e.key = Math.random()
+            return e;
+          });
+          this.userinfo.origin_user_id = item.mobile;
+          this.userinfo.glid = item.glid;
         },
         async getTotal() {
           let { user_id: userid } = this.userinfo;
@@ -95,9 +101,11 @@
               data: { token, userid }
             });
             let list = data.data;
-            this.list = this.list.map(e => {
-              let item = list.find(k => e.mobile === k.mobile)
-              if (item) return { ...e, ...item, handle: true }
+            this.list = this.list.map((e, i) => {
+              let item = list.find(k => e.mobile === k.mobile);
+              e.key = i;
+              e.hover = false;
+              if (item) return { ...e, ...item }
               else return e;
             })
           } catch (error) { }
@@ -112,13 +120,14 @@
           this.loading = true;
           this.btn = 1;
           try {
-            let { token, user_id: userid, mobile: origin_user_id, select } = this.userinfo;
-            if (!select) { vant.Toast.fail('请选择！'); throw ''; }
+            let { token, user_id: userid, origin_user_id } = this.userinfo;
+            if (!origin_user_id) { vant.Toast.fail('请选择！'); throw ''; }
             let { data } = await axios({
               url: '/api/dobuyin',
               data: { token, userid, origin_user_id }
             });
             this.getTotal();
+            this.getList();
           } catch (error) { }
           this.loading = false;
         },
@@ -126,13 +135,16 @@
           this.loading = true;
           this.btn = 0;
           try {
-            let { glid, token, user_id: userid, select } = this.userinfo;
-            if (!select) { vant.Toast.fail('请选择！'); throw ''; }
+            let { glid, token, user_id: userid } = this.userinfo;
+            if (!glid) { vant.Toast.fail('请选择！'); throw ''; }
             let { data } = await axios({
               url: '/api/dobuyout',
               data: { glid, token, userid }
             });
+            this.userinfo.origin_user_id = "";
+            this.userinfo.glid = "";
             this.getTotal();
+            this.getList();
           } catch (error) { }
           this.loading = false;
         }
